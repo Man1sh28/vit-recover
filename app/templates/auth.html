@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create account' if mode == 'register' else 'Login' }} — VIT Recover{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-card">
+    <span class="eyebrow">STUDENT ACCESS</span>
+    <h1>{{ 'Create your account' if mode == 'register' else 'Welcome back' }}</h1>
+    <p>{{ 'Use your VIT details. Your public identity remains masked.' if mode == 'register' else 'Sign in to manage listings, claims and handoffs.' }}</p>
+    {% if errors %}<div class="alert error">{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
+    <form method="post" class="form-stack submit-form">
+      {% if mode == 'register' %}
+        <label>Full name<input name="name" value="{{ form.name if form else '' }}" required minlength="2" maxlength="80" placeholder="Student name"></label>
+        <label>Registration number<input name="reg_no" value="{{ form.reg_no if form else '' }}" required maxlength="20" placeholder="e.g. 26BCE0000"></label>
+      {% endif %}
+      <label>Email<input type="email" name="email" value="{{ form.email if form else '' }}" required placeholder="student@example.com"></label>
+      {% if mode == 'register' %}<label>Mobile number<input name="phone" value="{{ form.phone if form else '' }}" required placeholder="10-digit mobile number"></label>{% endif %}
+      <label>Password<input type="password" name="password" required minlength="8" placeholder="Minimum 8 characters"></label>
+      {% if mode == 'login' %}<input type="hidden" name="next" value="{{ request.query_params.get('next', '/dashboard') }}">{% endif %}
+      <button class="btn primary full" type="submit">{{ 'Create account' if mode == 'register' else 'Login' }}</button>
+    </form>
+    <p class="switch-auth">{% if mode == 'register' %}Already registered? <a href="/login">Login</a>{% else %}New here? <a href="/register">Create account</a>{% endif %}</p>
+  </div>
+</section>
+{% endblock %}
