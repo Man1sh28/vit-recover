@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}VIT Recover{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/">
+        <span class="brand-mark">V</span>
+        <span>VIT Recover</span>
+      </a>
+      <nav class="nav">
+        <a href="/?type=Lost">Lost</a>
+        <a href="/?type=Found">Found</a>
+        {% if user %}
+          <a href="/listings/new">Report Item</a>
+          <a href="/dashboard">Dashboard</a>
+          <form method="post" action="/logout"><button class="link-button" type="submit">Logout</button></form>
+        {% else %}
+          <a href="/login">Login</a>
+          <a class="nav-cta" href="/register">Create account</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>
+    <div class="container footer-inner">
+      <div><strong>VIT Recover</strong><p>Privacy-first campus lost & found.</p></div>
+      <span>Built for secure student-to-student recovery.</span>
+    </div>
+  </footer>
+  <div id="toast" class="toast" aria-live="polite"></div>
+  <script src="/static/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
