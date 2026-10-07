@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — VIT Recover{% endblock %}
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="dashboard-head">
+      <div><span class="eyebrow">PRIVATE DASHBOARD</span><h1>Hello, {{ user.name }}</h1><p>Manage campus listings, verify ownership claims, and coordinate approved returns.</p></div>
+      <a class="btn primary" href="/listings/new">+ Report item</a>
+    </div>
+    <div class="dashboard-grid">
+      <section class="panel dashboard-panel">
+        <div class="panel-title"><h2>Incoming claims</h2><span>{{ incoming_claims|length }}</span></div>
+        {% if incoming_claims %}
+          <div class="stack-list">
+            {% for claim in incoming_claims %}
+              <div class="claim-row">
+                <div>
+                  <strong>{{ claim.listing_title }}</strong>
+                  <p>{{ claim.claimant_name }} answered:</p>
+                  <blockquote>{{ claim.answer }}</blockquote>
+                  <small>{{ claim.venue }} · {{ claim.created_at }}</small>
+                </div>
+                <div class="claim-actions">
+                  <span class="status-chip {{ claim.status|lower }}">{{ claim.status }}</span>
+                  {% if claim.status == 'Pending' %}
+                    <form method="post" action="/claims/{{ claim.id }}/decision"><input type="hidden" name="decision" value="Approved"><button class="btn compact success" type="submit">Approve</button></form>
+                    <form method="post" action="/claims/{{ claim.id }}/decision"><input type="hidden" name="decision" value="Rejected"><button class="btn compact danger" type="submit">Reject</button></form>
+                  {% elif claim.status == 'Approved' %}
+                    <a class="btn compact secondary" href="/claims/{{ claim.id }}/thread">Open thread</a>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}<div class="mini-empty">No claim requests yet.</div>{% endif %}
+      </section>
+
+      <section class="panel dashboard-panel">
+        <div class="panel-title"><h2>My claims</h2><span>{{ my_claims|length }}</span></div>
+        {% if my_claims %}
+          <div class="stack-list">
+            {% for claim in my_claims %}
+              <div class="simple-row">
+                <div><strong>{{ claim.listing_title }}</strong><small>{{ claim.venue }} · Listing {{ claim.listing_status }}</small></div>
+                <div class="row-right">
+                  <span class="status-chip {{ claim.status|lower }}">{{ claim.status }}</span>
+                  {% if claim.status == 'Approved' %}<a href="/claims/{{ claim.id }}/thread">Coordinate →</a>{% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}<div class="mini-empty">You have not submitted any claims.</div>{% endif %}
+      </section>
+
+      <section class="panel dashboard-panel full-span">
+        <div class="panel-title"><h2>My listings</h2><span>{{ my_listings|length }}</span></div>
+        {% if my_listings %}
+          <div class="listing-table">
+            {% for item in my_listings %}
+              <div class="listing-row">
+                <div><strong>{{ item.title }}</strong><small>{{ item.type }} · {{ item.venue }} · {{ item.category }}</small></div>
+                <span class="status-chip {{ item.status|lower }}">{{ item.status }}</span>
+                <a href="/listings/{{ item.id }}">View</a>
+                {% if item.status == 'Active' %}<form method="post" action="/listings/{{ item.id }}/resolve"><button class="btn compact secondary" type="submit">Mark resolved</button></form>{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}<div class="mini-empty">You have not posted any items yet.</div>{% endif %}
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}
