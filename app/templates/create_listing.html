@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Report Item — VIT Recover{% endblock %}
+
+{% block content %}
+<section class="page-section narrow">
+  <div class="section-intro">
+    <span class="eyebrow">REPORT AN ITEM</span>
+    <h1>Add a campus listing</h1>
+    <p>Choose only official VIT venues. For found items, add a question that only the real owner should answer.</p>
+  </div>
+
+  {% if errors %}
+    <div class="alert error">
+      {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" class="panel form-stack submit-form" id="listing-form">
+    <div class="field-grid two">
+      <label>
+        Listing type
+        <select name="type" id="listing-type" required>
+          <option value="Found" {% if not form or form.type == 'Found' %}selected{% endif %}>Found</option>
+          <option value="Lost" {% if form and form.type == 'Lost' %}selected{% endif %}>Lost</option>
+        </select>
+      </label>
+      <label>
+        Category
+        <select name="category" required>
+          <option value="">Select category</option>
+          {% for c in categories %}
+            <option value="{{ c }}" {% if form and form.category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Item title
+      <input name="title" required minlength="3" maxlength="80" value="{{ form.title if form else '' }}" placeholder="e.g. Black Casio calculator">
+    </label>
+
+    <label>
+      Description
+      <textarea name="description" required minlength="10" maxlength="1200" rows="5" placeholder="Describe identifying details without revealing sensitive ownership clues.">{{ form.description if form else '' }}</textarea>
+      <small>Do not publish sensitive information that should be used for verification.</small>
+    </label>
+
+    <div class="field-grid two">
+      <label>
+        Campus venue
+        <select name="venue" required>
+          <option value="">Select official campus venue</option>
+          {% for v in venues %}
+            <option value="{{ v }}" {% if form and form.venue == v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Date lost/found
+        <input type="date" name="date_seen" required value="{{ form.date_seen if form else '' }}">
+      </label>
+    </div>
+
+    <label id="verification-field">
+      Private verification challenge
+      <input name="verification_question" id="verification-question" value="{{ form.verification_question if form else '' }}" placeholder='e.g. "What name/branch is on the ID tag?"'>
+      <small>This question is shown to claimants. Do not put the correct answer in the public description.</small>
+    </label>
+
+    <button class="btn primary full" type="submit">Publish campus listing</button>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const type = document.getElementById('listing-type');
+  const field = document.getElementById('verification-field');
+  const input = document.getElementById('verification-question');
+
+  function syncVerification() {
+    const found = type.value === 'Found';
+    field.style.display = found ? 'grid' : 'none';
+    input.required = found;
+  }
+  type.addEventListener('change', syncVerification);
+  syncVerification();
+</script>
+{% endblock %}
