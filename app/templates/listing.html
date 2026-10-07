@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }} — VIT Recover{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container detail-layout">
+    <article class="panel listing-detail">
+      <div class="card-topline">
+        <span class="pill {{ listing.type|lower }}">{{ listing.type }}</span>
+        <span class="pill neutral">{{ listing.status }}</span>
+      </div>
+
+      <h1>{{ listing.title }}</h1>
+      <p class="detail-description">{{ listing.description }}</p>
+
+      <div class="detail-meta-grid">
+        <div><small>Campus venue</small><strong>{{ listing.venue }}</strong></div>
+        <div><small>Category</small><strong>{{ listing.category }}</strong></div>
+        <div><small>Date</small><strong>{{ listing.date_seen }}</strong></div>
+        <div><small>Listing ID</small><strong>#{{ listing.id }}</strong></div>
+      </div>
+
+      <div class="privacy-box">
+        <div class="shield mini">✓</div>
+        <div>
+          <strong>Finder identity protected</strong>
+          <p>Public contact details are masked to prevent spam and unsolicited contact.</p>
+          <div class="masked">
+            <span>Reg: {{ public_owner.reg_no }}</span>
+            <span>Email: {{ public_owner.email }}</span>
+            <span>Phone: {{ public_owner.phone }}</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel claim-panel">
+      {% if listing.status == 'Resolved' %}
+        <span class="eyebrow">CLOSED</span>
+        <h2>Item resolved</h2>
+        <p>This listing has been removed from active campus boards.</p>
+      {% elif user and user.id == listing.user_id %}
+        <span class="eyebrow">YOUR LISTING</span>
+        <h2>Manage this item</h2>
+        <p>Review ownership claims from your private dashboard.</p>
+        <a class="btn primary full" href="/dashboard">Open dashboard</a>
+      {% elif listing.type == 'Lost' %}
+        <span class="eyebrow">LOST ITEM</span>
+        <h2>Seen this item?</h2>
+        <p>Use the report flow to post a matching found item so the owner can discover it safely.</p>
+        <a class="btn primary full" href="/listings/new">Report found item</a>
+      {% elif not user %}
+        <span class="eyebrow">OWNERSHIP CHECK</span>
+        <h2>Think this is yours?</h2>
+        <p>Login to submit a private claim verification request.</p>
+        <a class="btn primary full" href="/login?next=/listings/{{ listing.id }}">Login to claim</a>
+      {% elif existing_claim %}
+        <span class="eyebrow">CLAIM STATUS</span>
+        <h2>{{ existing_claim.status }}</h2>
+        {% if existing_claim.status == 'Pending' %}
+          <p>Your answer has been submitted privately to the finder for review.</p>
+        {% elif existing_claim.status == 'Approved' %}
+          <p>Your claim was approved. Continue in the private handoff thread.</p>
+          <a class="btn primary full" href="/claims/{{ existing_claim.id }}/thread">Open handoff thread</a>
+        {% else %}
+          <p>The finder could not verify this claim.</p>
+        {% endif %}
+      {% else %}
+        <span class="eyebrow">PRIVATE CLAIM CHECK</span>
+        <h2>Verify ownership</h2>
+        <p class="challenge">{{ listing.verification_question }}</p>
+        <form method="post" action="/listings/{{ listing.id }}/claim" class="form-stack submit-form">
+          <label>
+            Your answer
+            <textarea name="answer" minlength="2" maxlength="500" required rows="4" placeholder="Answer only with details you genuinely know."></textarea>
+          </label>
+          <button class="btn primary full" type="submit">Submit verification request</button>
+        </form>
+        <small class="subtle">Your identity stays private from public viewers.</small>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}
