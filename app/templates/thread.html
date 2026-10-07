@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Handoff Thread — VIT Recover{% endblock %}
+{% block content %}
+<section class="page-section narrow">
+  <div class="section-intro"><span class="eyebrow">APPROVED CLAIM</span><h1>Private handoff thread</h1><p>{{ claim.listing_title }}</p></div>
+  <div class="safe-banner"><strong>Meet only at a safe campus checkpoint.</strong><p>No phone number is required. Keep coordination inside this thread.</p></div>
+  <div class="checkpoint-grid">
+    {% for point in handoff_points %}<button type="button" class="checkpoint" onclick="fillCheckpoint('{{ point }}')">{{ point }}</button>{% endfor %}
+  </div>
+  <div class="panel chat-panel">
+    <div class="messages">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="message {{ 'mine' if message.sender_id == user.id else '' }}">
+            <div class="message-head">{{ 'You' if message.sender_id == user.id else message.sender_name }} · {{ message.created_at }}</div>
+            <div class="message-body">{{ message.body }}</div>
+          </div>
+        {% endfor %}
+      {% else %}<div class="mini-empty">No messages yet. Suggest a campus checkpoint to start.</div>{% endif %}
+    </div>
+    <form method="post" action="/claims/{{ claim.id }}/thread" class="message-form submit-form">
+      <textarea id="message-input" name="body" required maxlength="600" rows="3" placeholder="Suggest a time and campus checkpoint..."></textarea>
+      <button class="btn primary" type="submit">Send</button>
+    </form>
+  </div>
+  {% if claim.listing_status == 'Active' %}
+    <form method="post" action="/listings/{{ claim.listing_id }}/resolve" class="resolve-form"><button class="btn secondary full" type="submit">Item returned — mark resolved</button></form>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+function fillCheckpoint(point) {
+  const box = document.getElementById('message-input');
+  box.value = 'Can we meet at ' + point + '? ';
+  box.focus();
+}
+</script>
+{% endblock %}
